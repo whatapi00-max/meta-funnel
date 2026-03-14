@@ -11,12 +11,13 @@ const WA_SVG = (
   </svg>
 );
 
-function WhatsAppCTA({ href, label, large }) {
+function WhatsAppCTA({ href, label, large, onClick }) {
   return (
     <a
       href={href}
       target="_blank"
       rel="noopener noreferrer"
+      onClick={onClick}
       className={`flex items-center justify-center gap-2 bg-[#25D366] text-white font-bold rounded-full shadow-lg hover:bg-[#20bd5a] transition-all duration-200 active:scale-[0.97] w-full ${large ? 'text-lg py-4 px-6' : 'text-base py-3.5 px-6'}`}
     >
       {WA_SVG}
@@ -96,7 +97,7 @@ function ConfettiBurst() {
 }
 
 /* ── Scroll popup ── */
-function RewardPopup({ url, label, content }) {
+function RewardPopup({ url, label, content, onWhatsAppClick }) {
   const [open, setOpen] = useState(false);
   const [pulse, setPulse] = useState(false);
   const [confetti, setConfetti] = useState(false);
@@ -199,6 +200,7 @@ function RewardPopup({ url, label, content }) {
               href={url}
               target="_blank"
               rel="noopener noreferrer"
+              onClick={onWhatsAppClick}
               className={`flex items-center justify-center gap-2 bg-[#25D366] text-white font-extrabold text-base py-4 rounded-2xl w-full shadow-lg transition-all duration-200 active:scale-[0.97] ${pulse ? 'animate-pulse' : ''}`}
               style={{ boxShadow: '0 4px 20px rgba(37,211,102,0.45)' }}
               onMouseEnter={() => setPulse(false)}
@@ -353,20 +355,28 @@ function LandingContent() {
         const number = m?.whatsapp_number || c.default_whatsapp || '919876543210';
         const msg = encodeURIComponent(c.whatsapp_message || 'Hi, I want to join the Sports Community');
         setWhatsappUrl(`https://wa.me/${number}?text=${msg}`);
-        if (ref) publicApi.trackClick(ref).catch(() => {});
       } catch {
         setWhatsappUrl(`https://wa.me/919876543210?text=${encodeURIComponent('Hi, I want to join the Sports Community')}`);
       }
     }
     load();
   }, [ref]);
+
+  const tracked = useRef(false);
+  function handleWhatsAppClick() {
+    if (ref && !tracked.current) {
+      tracked.current = true;
+      publicApi.trackClick(ref).catch(() => {});
+    }
+  }
+
   const url = whatsappUrl || '#';
   const ctaLabel = content?.cta_text || 'Join Free on WhatsApp';
   const contactEmail = content?.contact_email || 'support@mobsforsub.com';
 
   return (
     <>
-      <RewardPopup url={url} label={ctaLabel} content={content} />
+      <RewardPopup url={url} label={ctaLabel} content={content} onWhatsAppClick={handleWhatsAppClick} />
       <div className="min-h-screen bg-gray-300">
       <div className="max-w-[480px] mx-auto min-h-screen bg-white text-gray-900 shadow-2xl flex flex-col">
 
@@ -386,6 +396,7 @@ function LandingContent() {
             href={url || '#'}
             target="_blank"
             rel="noopener noreferrer"
+            onClick={handleWhatsAppClick}
             className="shrink-0 whitespace-nowrap bg-[#25D366] text-white text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wide hover:bg-[#20bd5a] transition-colors"
           >
             Play now
@@ -400,7 +411,7 @@ function LandingContent() {
           </span>
           <span className="text-[11px] font-bold text-white"><UrgencyCount /> members online right now</span>
           <span className="text-white/30">·</span>
-          <a href={url} target="_blank" rel="noopener noreferrer" className="text-[11px] text-green-300 font-extrabold hover:text-green-200">Join Free →</a>
+          <a href={url} target="_blank" rel="noopener noreferrer" onClick={handleWhatsAppClick} className="text-[11px] text-green-300 font-extrabold hover:text-green-200">Join Free →</a>
         </div>
 
         {/* HERO */}
@@ -428,7 +439,7 @@ function LandingContent() {
           {/* CTA pinned to bottom inside frosted glass card */}
           <div className="absolute bottom-0 left-0 right-0 px-6 pb-4">
             <div className="rounded-2xl px-4 pt-3 pb-2" style={{ background: 'rgba(0,0,0,0.42)', backdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.10)' }}>
-              <a href={url} target="_blank" rel="noopener noreferrer"
+              <a href={url} target="_blank" rel="noopener noreferrer" onClick={handleWhatsAppClick}
                 className="flex items-center justify-center gap-2 bg-[#25D366] text-white font-bold rounded-full shadow-lg hover:bg-[#20bd5a] transition-all duration-200 active:scale-[0.97] w-full text-sm py-2.5 px-5">
                 {WA_SVG}
                 <span>{ctaLabel}</span>
@@ -622,7 +633,7 @@ function LandingContent() {
         <div className="px-5 pt-4 pb-5 bg-white border-t-2 border-green-100">
           <p className="text-center text-[13px] font-extrabold text-gray-800 mb-1">🔥 Join for free in 10 seconds</p>
           <p className="text-center text-[10px] text-gray-400 mb-3">Tap the button — WhatsApp opens instantly</p>
-          <a href={url} target="_blank" rel="noopener noreferrer"
+          <a href={url} target="_blank" rel="noopener noreferrer" onClick={handleWhatsAppClick}
             className="flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#20bd5a] text-white font-extrabold text-[15px] py-4 rounded-2xl w-full wa-glow active:scale-[0.97] transition-transform">
             {WA_SVG}<span>{ctaLabel} →</span>
           </a>
@@ -671,13 +682,13 @@ function LandingContent() {
               ))}
             </div>
 
-            <WhatsAppCTA href={url} label={ctaLabel} large />
+            <WhatsAppCTA href={url} label={ctaLabel} large onClick={handleWhatsAppClick} />
           </div>
         </section>
 
         {/* STICKY CTA */}
         <div className="sticky bottom-0 z-50 px-4 py-3 bg-white border-t border-green-100" style={{ boxShadow: '0 -4px 20px rgba(37,211,102,0.1)' }}>
-          <a href={url} target="_blank" rel="noopener noreferrer"
+          <a href={url} target="_blank" rel="noopener noreferrer" onClick={handleWhatsAppClick}
             className="flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#20bd5a] text-white font-extrabold text-[15px] py-4 rounded-2xl w-full wa-glow active:scale-[0.97] transition-transform">
             {WA_SVG}<span>{ctaLabel} →</span>
           </a>
