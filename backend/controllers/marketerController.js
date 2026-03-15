@@ -32,12 +32,19 @@ async function updateWhatsApp(req, res) {
     updates.whatsapp_number_2 = whatsapp_number_2 || '';
   }
 
-  const { data, error } = await supabase
+  let { data, error } = await supabase
     .from('marketers')
     .update(updates)
     .eq('user_id', req.user.id)
     .select()
     .single();
+
+  // If whatsapp_number_2 column doesn't exist yet, retry without it
+  if (error && error.message && error.message.includes('whatsapp_number_2')) {
+    delete updates.whatsapp_number_2;
+    ({ data, error } = await supabase
+      .from('marketers').update(updates).eq('user_id', req.user.id).select().single());
+  }
 
   if (error) {
     return res.status(500).json({ error: 'Failed to update number' });

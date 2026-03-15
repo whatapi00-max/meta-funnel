@@ -8,12 +8,22 @@ async function getMarketerByRef(req, res) {
     return res.status(400).json({ error: 'Invalid ref code' });
   }
 
-  const { data, error } = await supabase
+  let { data, error } = await supabase
     .from('marketers')
     .select('name, whatsapp_number, whatsapp_number_2, ref_code')
     .eq('ref_code', ref)
     .eq('status', 'active')
     .single();
+
+  // If whatsapp_number_2 column doesn't exist yet, retry without it
+  if (error && error.message && error.message.includes('whatsapp_number_2')) {
+    ({ data, error } = await supabase
+      .from('marketers')
+      .select('name, whatsapp_number, ref_code')
+      .eq('ref_code', ref)
+      .eq('status', 'active')
+      .single());
+  }
 
   if (error || !data) {
     // Return default number from landing content
