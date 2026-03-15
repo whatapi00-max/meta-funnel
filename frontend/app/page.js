@@ -66,17 +66,19 @@ function GameCard({ card, waUrls }) {
         )}
       </div>
 
-      {/* JOIN button — sits on right edge, partially outside card */}
+      {/* JOIN button — premium pill on right edge */}
       <span
-        className="absolute -right-2 top-1/2 -translate-y-1/2 z-10 flex flex-col items-center justify-center w-11 h-11 rounded-full text-white font-black shadow-2xl select-none"
+        className="absolute -right-1 top-1/2 -translate-y-1/2 z-10 flex items-center gap-1 px-3 py-1.5 rounded-full select-none"
         style={{
-          background: `linear-gradient(135deg, ${card.badgeColor} 0%, rgba(0,0,0,0.6) 140%)`,
-          boxShadow: `0 0 14px 3px ${card.badgeColor}66, 0 2px 8px rgba(0,0,0,0.5)`,
-          border: '1.5px solid rgba(255,255,255,0.25)',
+          background: `linear-gradient(135deg, ${card.badgeColor}ee 0%, ${card.badgeColor}99 100%)`,
+          boxShadow: `0 0 18px 4px ${card.badgeColor}55, inset 0 1px 0 rgba(255,255,255,0.3), 0 3px 10px rgba(0,0,0,0.6)`,
+          border: '1px solid rgba(255,255,255,0.3)',
         }}
       >
-        <span className="text-[7px] uppercase tracking-widest leading-none">JOIN</span>
-        <span className="text-base leading-none mt-0.5">▶</span>
+        <span className="text-white font-black text-[10px] uppercase tracking-widest leading-none">Join</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ width: 10, height: 10 }}>
+          <path d="M5 12h14M13 6l6 6-6 6"/>
+        </svg>
       </span>
     </a>
   );
