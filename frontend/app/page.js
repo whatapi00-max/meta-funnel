@@ -66,9 +66,9 @@ function GameCard({ card, waUrls }) {
         )}
       </div>
 
-      {/* JOIN button — premium pill on right edge */}
+      {/* JOIN button — premium pill on center bottom */}
       <span
-        className="absolute -right-1 top-1/2 -translate-y-1/2 z-10 flex items-center gap-1 px-3 py-1.5 rounded-full select-none"
+        className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 z-10 flex items-center gap-1 px-3 py-1.5 rounded-full select-none"
         style={{
           background: `linear-gradient(135deg, ${card.badgeColor}ee 0%, ${card.badgeColor}99 100%)`,
           boxShadow: `0 0 18px 4px ${card.badgeColor}55, inset 0 1px 0 rgba(255,255,255,0.3), 0 3px 10px rgba(0,0,0,0.6)`,
@@ -199,7 +199,7 @@ function LandingContent() {
         <div className="flex-1 flex flex-col items-center justify-center w-full mt-2">
 
           {/* Game Cards */}
-          <div className="w-full max-w-sm mx-auto mb-5 flex flex-col gap-2.5">
+          <div className="w-full max-w-sm mx-auto mb-5 flex flex-col gap-5">
             {cards.map((card) => (
               <GameCard key={card.id} card={card} waUrls={waUrls} />
             ))}
