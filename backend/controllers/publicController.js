@@ -62,7 +62,8 @@ async function trackClick(req, res) {
     .single();
 
   if (!marketer) {
-    return res.status(404).json({ error: 'Marketer not found' });
+    // Ref not in DB — nothing to track, but don't error
+    return res.json({ success: true });
   }
 
   const { error } = await supabase.from('clicks').insert({
