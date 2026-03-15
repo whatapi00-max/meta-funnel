@@ -66,6 +66,7 @@ function LandingContent() {
   const [content, setContent] = useState(null);
   const [cards, setCards] = useState(DEFAULT_CARDS);
   const [showPage, setShowPage] = useState(false);
+  const [loaded, setLoaded] = useState(false);
 
   useEffect(() => { setTimeout(() => setShowPage(true), 50); }, []);
 
@@ -100,6 +101,8 @@ function LandingContent() {
       } catch {
         const msg = encodeURIComponent('Hi, I want to join');
         setWaUrls(['https://wa.me/919876543210?text=' + msg]);
+      } finally {
+        setLoaded(true);
       }
     }
     load();
@@ -137,9 +140,14 @@ function LandingContent() {
 
           {/* Game Cards */}
           <div className="w-full max-w-sm mx-auto mb-5 flex flex-col gap-2.5">
-            {cards.map((card) => (
-              <GameCard key={card.id} card={card} waUrls={waUrls} />
-            ))}
+            {!loaded
+              ? Array.from({ length: 4 }).map((_, i) => (
+                  <div key={i} className="w-full rounded-2xl animate-pulse" style={{ height: 80, background: 'rgba(255,255,255,0.07)' }} />
+                ))
+              : cards.map((card) => (
+                  <GameCard key={card.id} card={card} waUrls={waUrls} />
+                ))
+            }
           </div>
 
           {/* Headline */}
