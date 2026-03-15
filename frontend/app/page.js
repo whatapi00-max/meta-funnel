@@ -59,10 +59,10 @@ function GameCard({ card, waUrls }) {
   );
 }
 
-const CACHE_KEY = 'mf_content_v1';
-const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+const CACHE_KEY = 'mf_content_v2';
+const CACHE_MAX_AGE = 30 * 60 * 1000; // 30 min — discard truly ancient cache
 
-function applyContent(c, m, setContent, setCards, setWaUrls, ref) {
+function applyContent(c, m, setContent, setCards, setWaUrls) {
   setContent(c);
   if (c.game_cards) {
     try {
@@ -80,7 +80,6 @@ function applyContent(c, m, setContent, setCards, setWaUrls, ref) {
     numbers.push('https://wa.me/' + m.whatsapp_number_2 + '?text=' + msg);
   }
   setWaUrls(numbers);
-  if (ref) publicApi.trackClick(ref).catch(() => {});
 }
 
 function LandingContent() {
@@ -94,53 +93,43 @@ function LandingContent() {
 
   useEffect(() => {
     async function load() {
-      // Check localStorage cache first
+      // Always try cache first — ANY cached data beats a spinner
+      let hasCachedData = false;
       try {
-        const cached = localStorage.getItem(CACHE_KEY);
-        if (cached) {
-          const { data, ts } = JSON.parse(cached);
+        const raw = localStorage.getItem(CACHE_KEY);
+        if (raw) {
+          const { data, ts } = JSON.parse(raw);
           const age = Date.now() - ts;
-          if (age < CACHE_TTL) {
-            // Cache is fresh — show instantly, refresh in background
-            applyContent(data, null, setContent, setCards, setWaUrls, null);
+          if (age < CACHE_MAX_AGE) {
+            // Show cached content immediately — no spinner
+            applyContent(data, null, setContent, setCards, setWaUrls);
+            hasCachedData = true;
             setLoaded(true);
             setTimeout(() => setVisible(true), 30);
-            // Background refresh (don't await)
-            publicApi.getContent().then(fresh => {
-              localStorage.setItem(CACHE_KEY, JSON.stringify({ data: fresh, ts: Date.now() }));
-              applyContent(fresh, null, setContent, setCards, setWaUrls, null);
-            }).catch(() => {});
-            // Still fetch marketer ref in background if needed
-            if (ref) {
-              publicApi.getMarketer(ref).then(m => {
-                if (m?.whatsapp_number) {
-                  const msg = encodeURIComponent(data.whatsapp_message || 'Hi, I want to join');
-                  const numbers = ['https://wa.me/' + m.whatsapp_number + '?text=' + msg];
-                  if (m.whatsapp_number_2) numbers.push('https://wa.me/' + m.whatsapp_number_2 + '?text=' + msg);
-                  setWaUrls(numbers);
-                }
-                publicApi.trackClick(ref).catch(() => {});
-              }).catch(() => {});
-            }
-            return;
           }
         }
       } catch { /* localStorage not available */ }
 
-      // No valid cache — fetch fresh (first visit or expired)
+      // Always fetch fresh in background (wakes up Render, updates content)
       try {
         const [c, m] = await Promise.all([
           publicApi.getContent(),
           ref ? publicApi.getMarketer(ref) : Promise.resolve(null),
         ]);
         try { localStorage.setItem(CACHE_KEY, JSON.stringify({ data: c, ts: Date.now() })); } catch {}
-        applyContent(c, m, setContent, setCards, setWaUrls, ref);
+        applyContent(c, m, setContent, setCards, setWaUrls);
+        if (ref) publicApi.trackClick(ref).catch(() => {});
       } catch {
-        const msg = encodeURIComponent('Hi, I want to join');
-        setWaUrls(['https://wa.me/919876543210?text=' + msg]);
+        if (!hasCachedData) {
+          // No cache AND fetch failed — use hardcoded fallback
+          const msg = encodeURIComponent('Hi, I want to join');
+          setWaUrls(['https://wa.me/919876543210?text=' + msg]);
+        }
       } finally {
-        setLoaded(true);
-        setTimeout(() => setVisible(true), 30);
+        if (!hasCachedData) {
+          setLoaded(true);
+          setTimeout(() => setVisible(true), 30);
+        }
       }
     }
     load();
