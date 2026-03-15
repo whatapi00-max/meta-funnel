@@ -65,10 +65,8 @@ function LandingContent() {
   const [waUrls, setWaUrls] = useState([]);
   const [content, setContent] = useState(null);
   const [cards, setCards] = useState(DEFAULT_CARDS);
-  const [showPage, setShowPage] = useState(false);
   const [loaded, setLoaded] = useState(false);
-
-  useEffect(() => { setTimeout(() => setShowPage(true), 50); }, []);
+  const [visible, setVisible] = useState(false);
 
   useEffect(() => {
     async function load() {
@@ -103,6 +101,7 @@ function LandingContent() {
         setWaUrls(['https://wa.me/919876543210?text=' + msg]);
       } finally {
         setLoaded(true);
+        setTimeout(() => setVisible(true), 30);
       }
     }
     load();
@@ -112,9 +111,17 @@ function LandingContent() {
   const contactEmail = content?.contact_email || 'support@billy777.com';
   const mainUrl = pickRandomUrl(waUrls);
 
+  if (!loaded) {
+    return (
+      <div className="min-h-screen min-h-dvh flex items-center justify-center" style={{ background: 'linear-gradient(160deg, #0a0a1a 0%, #0d1b2a 25%, #0f2740 50%, #0a1628 75%, #050510 100%)' }}>
+        <div className="animate-spin rounded-full h-8 w-8 border-2 border-[#25D366] border-t-transparent" />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen min-h-dvh relative overflow-hidden" style={{ background: 'linear-gradient(160deg, #0a0a1a 0%, #0d1b2a 25%, #0f2740 50%, #0a1628 75%, #050510 100%)' }}>
-      <div className={`relative z-10 min-h-screen min-h-dvh flex flex-col items-center justify-between px-5 py-6 max-w-lg mx-auto transition-all duration-700 ${showPage ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}>
+      <div className={`relative z-10 min-h-screen min-h-dvh flex flex-col items-center justify-between px-5 py-6 max-w-lg mx-auto transition-all duration-500 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
 
         {/* Top bar */}
         <div className="w-full flex items-center justify-between mb-4">
@@ -140,14 +147,9 @@ function LandingContent() {
 
           {/* Game Cards */}
           <div className="w-full max-w-sm mx-auto mb-5 flex flex-col gap-2.5">
-            {!loaded
-              ? Array.from({ length: 4 }).map((_, i) => (
-                  <div key={i} className="w-full rounded-2xl animate-pulse" style={{ height: 80, background: 'rgba(255,255,255,0.07)' }} />
-                ))
-              : cards.map((card) => (
-                  <GameCard key={card.id} card={card} waUrls={waUrls} />
-                ))
-            }
+            {cards.map((card) => (
+              <GameCard key={card.id} card={card} waUrls={waUrls} />
+            ))}
           </div>
 
           {/* Headline */}
