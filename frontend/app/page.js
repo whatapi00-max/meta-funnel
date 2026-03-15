@@ -38,23 +38,27 @@ function GameCard({ card, waUrls }) {
       {hasImage && (
         <img src={card.image} alt={card.label} className="absolute inset-0 w-full h-full object-cover" loading="lazy" />
       )}
-      <div className="absolute inset-0" style={{ background: 'linear-gradient(90deg, rgba(0,0,0,0.70) 0%, rgba(0,0,0,0.25) 55%, rgba(0,0,0,0.55) 100%)' }} />
-      <div className="absolute inset-0 flex items-center justify-between px-5">
-        <div className="flex items-center gap-2.5">
-          <span className="text-2xl leading-none">{card.icon}</span>
-          <div>
-            <div className="flex items-center gap-1.5">
-              <span className="text-white font-black text-sm leading-none">{card.label}</span>
-              <span className="text-[9px] font-black px-1.5 py-0.5 rounded-full text-white leading-none" style={{ background: card.badgeColor }}>{card.badge}</span>
+      {!hasImage && (
+        <>
+          <div className="absolute inset-0" style={{ background: 'linear-gradient(90deg, rgba(0,0,0,0.70) 0%, rgba(0,0,0,0.25) 55%, rgba(0,0,0,0.55) 100%)' }} />
+          <div className="absolute inset-0 flex items-center justify-between px-5">
+            <div className="flex items-center gap-2.5">
+              <span className="text-2xl leading-none">{card.icon}</span>
+              <div>
+                <div className="flex items-center gap-1.5">
+                  <span className="text-white font-black text-sm leading-none">{card.label}</span>
+                  <span className="text-[9px] font-black px-1.5 py-0.5 rounded-full text-white leading-none" style={{ background: card.badgeColor }}>{card.badge}</span>
+                </div>
+                <p className="text-white/65 text-[10px] mt-0.5 font-medium">{card.sub}</p>
+              </div>
             </div>
-            <p className="text-white/65 text-[10px] mt-0.5 font-medium">{card.sub}</p>
+            <div className="text-right">
+              <div className="text-white font-black text-xl tabular-nums">{card.odds}</div>
+              <div className="join-blink text-white text-[9px] font-black uppercase tracking-wide">Join Now</div>
+            </div>
           </div>
-        </div>
-        <div className="text-right">
-          <div className="text-white font-black text-xl tabular-nums">{card.odds}</div>
-          <div className="join-blink text-white text-[9px] font-black uppercase tracking-wide">Join Now</div>
-        </div>
-      </div>
+        </>
+      )}
     </a>
   );
 }
