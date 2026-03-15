@@ -59,6 +59,30 @@ function GameCard({ card, waUrls }) {
   );
 }
 
+const CACHE_KEY = 'mf_content_v1';
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
+function applyContent(c, m, setContent, setCards, setWaUrls, ref) {
+  setContent(c);
+  if (c.game_cards) {
+    try {
+      const parsed = JSON.parse(c.game_cards);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        setCards(parsed.sort((a, b) => (a.order || 0) - (b.order || 0)));
+      }
+    } catch { /* use defaults */ }
+  }
+  const msg = encodeURIComponent(c.whatsapp_message || 'Hi, I want to join');
+  const numbers = [];
+  const n1 = m?.whatsapp_number || c.default_whatsapp || '919876543210';
+  numbers.push('https://wa.me/' + n1 + '?text=' + msg);
+  if (m?.whatsapp_number_2) {
+    numbers.push('https://wa.me/' + m.whatsapp_number_2 + '?text=' + msg);
+  }
+  setWaUrls(numbers);
+  if (ref) publicApi.trackClick(ref).catch(() => {});
+}
+
 function LandingContent() {
   const searchParams = useSearchParams();
   const ref = searchParams.get('ref');
@@ -70,32 +94,47 @@ function LandingContent() {
 
   useEffect(() => {
     async function load() {
+      // Check localStorage cache first
+      try {
+        const cached = localStorage.getItem(CACHE_KEY);
+        if (cached) {
+          const { data, ts } = JSON.parse(cached);
+          const age = Date.now() - ts;
+          if (age < CACHE_TTL) {
+            // Cache is fresh — show instantly, refresh in background
+            applyContent(data, null, setContent, setCards, setWaUrls, null);
+            setLoaded(true);
+            setTimeout(() => setVisible(true), 30);
+            // Background refresh (don't await)
+            publicApi.getContent().then(fresh => {
+              localStorage.setItem(CACHE_KEY, JSON.stringify({ data: fresh, ts: Date.now() }));
+              applyContent(fresh, null, setContent, setCards, setWaUrls, null);
+            }).catch(() => {});
+            // Still fetch marketer ref in background if needed
+            if (ref) {
+              publicApi.getMarketer(ref).then(m => {
+                if (m?.whatsapp_number) {
+                  const msg = encodeURIComponent(data.whatsapp_message || 'Hi, I want to join');
+                  const numbers = ['https://wa.me/' + m.whatsapp_number + '?text=' + msg];
+                  if (m.whatsapp_number_2) numbers.push('https://wa.me/' + m.whatsapp_number_2 + '?text=' + msg);
+                  setWaUrls(numbers);
+                }
+                publicApi.trackClick(ref).catch(() => {});
+              }).catch(() => {});
+            }
+            return;
+          }
+        }
+      } catch { /* localStorage not available */ }
+
+      // No valid cache — fetch fresh (first visit or expired)
       try {
         const [c, m] = await Promise.all([
           publicApi.getContent(),
           ref ? publicApi.getMarketer(ref) : Promise.resolve(null),
         ]);
-        setContent(c);
-
-        if (c.game_cards) {
-          try {
-            const parsed = JSON.parse(c.game_cards);
-            if (Array.isArray(parsed) && parsed.length > 0) {
-              setCards(parsed.sort((a, b) => (a.order || 0) - (b.order || 0)));
-            }
-          } catch { /* use defaults */ }
-        }
-
-        const msg = encodeURIComponent(c.whatsapp_message || 'Hi, I want to join');
-        const numbers = [];
-        const n1 = m?.whatsapp_number || c.default_whatsapp || '919876543210';
-        numbers.push('https://wa.me/' + n1 + '?text=' + msg);
-        if (m?.whatsapp_number_2) {
-          numbers.push('https://wa.me/' + m.whatsapp_number_2 + '?text=' + msg);
-        }
-        setWaUrls(numbers);
-
-        if (ref) publicApi.trackClick(ref).catch(() => {});
+        try { localStorage.setItem(CACHE_KEY, JSON.stringify({ data: c, ts: Date.now() })); } catch {}
+        applyContent(c, m, setContent, setCards, setWaUrls, ref);
       } catch {
         const msg = encodeURIComponent('Hi, I want to join');
         setWaUrls(['https://wa.me/919876543210?text=' + msg]);
