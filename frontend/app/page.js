@@ -32,33 +32,52 @@ function GameCard({ card, waUrls }) {
       href={url}
       target="_blank"
       rel="noopener noreferrer"
-      className="relative w-full rounded-2xl overflow-hidden block active:scale-[0.98] transition-transform"
-      style={{ height: 80, background: hasImage ? 'none' : card.gradient }}
+      className="relative w-full block active:scale-[0.98] transition-transform"
+      style={{ height: 80 }}
     >
-      {hasImage && (
-        <img src={card.image} alt={card.label} className="absolute inset-0 w-full h-full object-cover" loading="lazy" />
-      )}
-      {!hasImage && (
-        <>
-          <div className="absolute inset-0" style={{ background: 'linear-gradient(90deg, rgba(0,0,0,0.70) 0%, rgba(0,0,0,0.25) 55%, rgba(0,0,0,0.55) 100%)' }} />
-          <div className="absolute inset-0 flex items-center justify-between px-5">
-            <div className="flex items-center gap-2.5">
-              <span className="text-2xl leading-none">{card.icon}</span>
-              <div>
-                <div className="flex items-center gap-1.5">
-                  <span className="text-white font-black text-sm leading-none">{card.label}</span>
-                  <span className="text-[9px] font-black px-1.5 py-0.5 rounded-full text-white leading-none" style={{ background: card.badgeColor }}>{card.badge}</span>
+      {/* Card body — overflow hidden kept here so image clips to rounded corners */}
+      <div
+        className="absolute inset-0 rounded-2xl overflow-hidden"
+        style={{ background: hasImage ? 'none' : card.gradient }}
+      >
+        {hasImage && (
+          <img src={card.image} alt={card.label} className="absolute inset-0 w-full h-full object-cover" loading="lazy" />
+        )}
+        {!hasImage && (
+          <>
+            <div className="absolute inset-0" style={{ background: 'linear-gradient(90deg, rgba(0,0,0,0.70) 0%, rgba(0,0,0,0.25) 55%, rgba(0,0,0,0.55) 100%)' }} />
+            <div className="absolute inset-0 flex items-center justify-between px-5">
+              <div className="flex items-center gap-2.5">
+                <span className="text-2xl leading-none">{card.icon}</span>
+                <div>
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-white font-black text-sm leading-none">{card.label}</span>
+                    <span className="text-[9px] font-black px-1.5 py-0.5 rounded-full text-white leading-none" style={{ background: card.badgeColor }}>{card.badge}</span>
+                  </div>
+                  <p className="text-white/65 text-[10px] mt-0.5 font-medium">{card.sub}</p>
                 </div>
-                <p className="text-white/65 text-[10px] mt-0.5 font-medium">{card.sub}</p>
+              </div>
+              <div className="text-right mr-10">
+                <div className="text-white font-black text-xl tabular-nums">{card.odds}</div>
+                <div className="join-blink text-white text-[9px] font-black uppercase tracking-wide">Join Now</div>
               </div>
             </div>
-            <div className="text-right">
-              <div className="text-white font-black text-xl tabular-nums">{card.odds}</div>
-              <div className="join-blink text-white text-[9px] font-black uppercase tracking-wide">Join Now</div>
-            </div>
-          </div>
-        </>
-      )}
+          </>
+        )}
+      </div>
+
+      {/* JOIN button — sits on right edge, partially outside card */}
+      <span
+        className="absolute -right-2 top-1/2 -translate-y-1/2 z-10 flex flex-col items-center justify-center w-11 h-11 rounded-full text-white font-black shadow-2xl select-none"
+        style={{
+          background: `linear-gradient(135deg, ${card.badgeColor} 0%, rgba(0,0,0,0.6) 140%)`,
+          boxShadow: `0 0 14px 3px ${card.badgeColor}66, 0 2px 8px rgba(0,0,0,0.5)`,
+          border: '1.5px solid rgba(255,255,255,0.25)',
+        }}
+      >
+        <span className="text-[7px] uppercase tracking-widest leading-none">JOIN</span>
+        <span className="text-base leading-none mt-0.5">▶</span>
+      </span>
     </a>
   );
 }
