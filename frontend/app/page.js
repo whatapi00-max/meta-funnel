@@ -191,9 +191,28 @@ function LandingContent() {
             </span>
           </h1>
 
-          <p className="text-white/50 text-center text-sm mb-5 max-w-xs leading-relaxed">
+          <p className="text-white/50 text-center text-sm mb-4 max-w-xs leading-relaxed">
             {content?.subheadline || 'Join the #1 sports & gaming community on WhatsApp!'}
           </p>
+
+          {/* Feature tagline */}
+          <p className="text-white/70 text-center text-[13px] font-semibold mb-3 max-w-xs leading-snug">
+            India&apos;s #1 sports &amp; gaming community — Get instant support, play Games &amp; join 1600+ games on WhatsApp!
+          </p>
+
+          {/* Feature badges */}
+          <div className="flex flex-wrap items-center justify-center gap-2 mb-5">
+            {[
+              { icon: '✈️', label: 'Crash Plane' },
+              { icon: '🏏', label: 'Cricket Live' },
+              { icon: '⏰', label: 'Instant Support 24x7' },
+            ].map(({ icon, label }) => (
+              <span key={label} className="flex items-center gap-1.5 bg-white/5 border border-white/10 rounded-full px-3.5 py-1.5 text-[12px] text-white/80 font-semibold backdrop-blur-sm">
+                <span>{icon}</span>
+                {label}
+              </span>
+            ))}
+          </div>
 
           {/* CTA Button */}
           <div className="w-full max-w-sm">
