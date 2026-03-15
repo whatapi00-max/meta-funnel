@@ -208,19 +208,19 @@ function LandingContent() {
           {/* Headline */}
           <h1 className="text-center mb-2">
             <span className="block text-3xl sm:text-4xl font-black text-transparent bg-clip-text leading-tight" style={{ backgroundImage: 'linear-gradient(135deg, #ffffff 0%, #e0e7ff 50%, #25D366 100%)' }}>
-              {content?.headline || 'Play & Win Prizes'}
+              {content?.headline || 'Skill Play & Get Rewards'}
             </span>
           </h1>
 
           {/* Feature tagline */}
           <p className="text-white/70 text-center text-[13px] font-semibold mb-3 max-w-xs leading-snug">
-            India&apos;s #1 sports &amp; gaming community — Get instant support, play Games &amp; join 1600+ games on WhatsApp!
+            India&apos;s #1 Sports &amp; Gaming community - Get instant support, Play Games &amp; Join 1600+ games on WhatsApp!
           </p>
 
           {/* Feature badges */}
           <div className="flex flex-wrap items-center justify-center gap-2 mb-5">
             {[
-              { icon: '✈️', label: 'Crash Plane' },
+              { icon: '✈️', label: 'Fly Challenge' },
               { icon: '🏏', label: 'Cricket Live' },
               { icon: '⏰', label: 'Instant Support 24x7' },
             ].map(({ icon, label }) => (
