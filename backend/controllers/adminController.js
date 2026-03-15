@@ -65,18 +65,18 @@ async function createMarketer(req, res) {
   }
 
   // Create marketer record
-  const { data: marketer, error: marketerError } = await supabase
-    .from('marketers')
-    .insert({
-      user_id: dbUser.id,
-      name,
-      ref_code,
-      whatsapp_number,
-      whatsapp_number_2: whatsapp_number_2 || '',
-      status: 'active',
-    })
-    .select()
-    .single();
+  const insertData = { user_id: dbUser.id, name, ref_code, whatsapp_number, status: 'active' };
+  if (whatsapp_number_2 !== undefined) insertData.whatsapp_number_2 = whatsapp_number_2 || '';
+
+  let { data: marketer, error: marketerError } = await supabase
+    .from('marketers').insert(insertData).select().single();
+
+  // If whatsapp_number_2 column doesn't exist yet, retry without it
+  if (marketerError && marketerError.message && marketerError.message.includes('whatsapp_number_2')) {
+    delete insertData.whatsapp_number_2;
+    ({ data: marketer, error: marketerError } = await supabase
+      .from('marketers').insert(insertData).select().single());
+  }
 
   if (marketerError) {
     await supabase.auth.admin.deleteUser(authUser.user.id);
@@ -114,12 +114,18 @@ async function updateMarketer(req, res) {
     return res.status(400).json({ error: 'No valid fields to update' });
   }
 
-  const { data, error } = await supabase
-    .from('marketers')
-    .update(updates)
-    .eq('id', id)
-    .select()
-    .single();
+  let { data, error } = await supabase
+    .from('marketers').update(updates).eq('id', id).select().single();
+
+  // If whatsapp_number_2 column doesn't exist yet, retry without it
+  if (error && error.message && error.message.includes('whatsapp_number_2')) {
+    delete updates.whatsapp_number_2;
+    if (Object.keys(updates).length === 0) {
+      return res.status(400).json({ error: 'No valid fields to update' });
+    }
+    ({ data, error } = await supabase
+      .from('marketers').update(updates).eq('id', id).select().single());
+  }
 
   if (error) {
     return res.status(500).json({ error: 'Failed to update marketer' });
@@ -384,12 +390,15 @@ async function uploadCardImage(req, res) {
   }
 
   const { data: buckets } = await supabase.storage.listBuckets();
-  const bucketExists = buckets?.some(b => b.name === 'card-images');
-  if (!bucketExists) {
+  const existingBucket = buckets?.find(b => b.name === 'card-images');
+  if (!existingBucket) {
     const { error: bucketErr } = await supabase.storage.createBucket('card-images', { public: true });
     if (bucketErr) {
       return res.status(500).json({ error: 'Could not create storage bucket: ' + bucketErr.message });
     }
+  } else if (!existingBucket.public) {
+    // Ensure bucket is public so images load on the landing page
+    await supabase.storage.updateBucket('card-images', { public: true });
   }
 
   const fileName = `card-${Date.now()}.${ext}`;

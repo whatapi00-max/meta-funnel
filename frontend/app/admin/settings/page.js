@@ -83,9 +83,17 @@ export default function AdminSettings() {
     const file = e.target.files?.[0];
     if (!file) return;
     setCardUploading(index);
+    setError('');
     try {
       const result = await adminApi.uploadCardImage(file);
-      updateCard(index, 'image', result.url);
+      const updatedCards = [...cards];
+      updatedCards[index] = { ...updatedCards[index], image: result.url };
+      setCards(updatedCards);
+      // Auto-save so the image is immediately live on the landing page
+      const saveContent = { ...content, game_cards: JSON.stringify(updatedCards) };
+      await adminApi.updateContent(saveContent);
+      setSuccess('Card image uploaded and saved!');
+      setTimeout(() => setSuccess(''), 4000);
     } catch (err) {
       setError(err.message || 'Card image upload failed');
     } finally {
