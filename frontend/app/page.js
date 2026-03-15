@@ -191,10 +191,6 @@ function LandingContent() {
             </span>
           </h1>
 
-          <p className="text-white/50 text-center text-sm mb-4 max-w-xs leading-relaxed">
-            {content?.subheadline || 'Join the #1 sports & gaming community on WhatsApp!'}
-          </p>
-
           {/* Feature tagline */}
           <p className="text-white/70 text-center text-[13px] font-semibold mb-3 max-w-xs leading-snug">
             India&apos;s #1 sports &amp; gaming community — Get instant support, play Games &amp; join 1600+ games on WhatsApp!
