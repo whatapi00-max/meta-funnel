@@ -10,6 +10,7 @@ const {
   updateLandingContent,
   uploadHeroImage,
   uploadLogoImage,
+  uploadCardImage,
 } = require('../controllers/adminController');
 
 const router = express.Router();
@@ -26,5 +27,6 @@ router.get('/analytics', getAnalytics);
 router.put('/content', updateLandingContent);
 router.post('/upload-hero', upload.single('image'), uploadHeroImage);
 router.post('/upload-logo', upload.single('image'), uploadLogoImage);
+router.post('/upload-card-image', upload.single('image'), uploadCardImage);
 
 module.exports = router;

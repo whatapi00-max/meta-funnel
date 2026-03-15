@@ -11,9 +11,9 @@ export default function AdminMarketers() {
   const [showCreate, setShowCreate] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [form, setForm] = useState({
-    email: '', password: '', name: '', ref_code: '', whatsapp_number: '',
+    email: '', password: '', name: '', ref_code: '', whatsapp_number: '', whatsapp_number_2: '',
   });
-  const [editForm, setEditForm] = useState({ name: '', whatsapp_number: '', status: '' });
+  const [editForm, setEditForm] = useState({ name: '', whatsapp_number: '', whatsapp_number_2: '', status: '' });
   const [formError, setFormError] = useState('');
   const [formLoading, setFormLoading] = useState(false);
 
@@ -37,7 +37,7 @@ export default function AdminMarketers() {
     try {
       await adminApi.createMarketer(form);
       setShowCreate(false);
-      setForm({ email: '', password: '', name: '', ref_code: '', whatsapp_number: '' });
+      setForm({ email: '', password: '', name: '', ref_code: '', whatsapp_number: '', whatsapp_number_2: '' });
       await loadMarketers();
     } catch (err) {
       setFormError(err.message);
@@ -75,6 +75,7 @@ export default function AdminMarketers() {
     setEditForm({
       name: marketer.name,
       whatsapp_number: marketer.whatsapp_number,
+      whatsapp_number_2: marketer.whatsapp_number_2 || '',
       status: marketer.status,
     });
     setFormError('');
@@ -126,9 +127,14 @@ export default function AdminMarketers() {
               className="input-field" pattern="^[a-zA-Z0-9_-]{3,30}$" required
             />
             <input
-              type="text" placeholder="WhatsApp (e.g. 919876543210)" value={form.whatsapp_number}
+              type="text" placeholder="WhatsApp 1 (e.g. 919876543210)" value={form.whatsapp_number}
               onChange={(e) => setForm({ ...form, whatsapp_number: e.target.value })}
               className="input-field" pattern="^\d{10,15}$" required
+            />
+            <input
+              type="text" placeholder="WhatsApp 2 (optional)" value={form.whatsapp_number_2}
+              onChange={(e) => setForm({ ...form, whatsapp_number_2: e.target.value })}
+              className="input-field" pattern="^\d{0,15}$"
             />
             <button type="submit" disabled={formLoading} className="btn-primary">
               {formLoading ? 'Creating...' : 'Create Marketer'}
@@ -148,7 +154,8 @@ export default function AdminMarketers() {
                 <th className="text-left py-3 px-4 text-gray-500 font-medium">Name</th>
                 <th className="text-left py-3 px-4 text-gray-500 font-medium hidden sm:table-cell">Email</th>
                 <th className="text-left py-3 px-4 text-gray-500 font-medium">Ref Code</th>
-                <th className="text-left py-3 px-4 text-gray-500 font-medium hidden md:table-cell">WhatsApp</th>
+                <th className="text-left py-3 px-4 text-gray-500 font-medium hidden md:table-cell">WhatsApp 1</th>
+                <th className="text-left py-3 px-4 text-gray-500 font-medium hidden lg:table-cell">WhatsApp 2</th>
                 <th className="text-left py-3 px-4 text-gray-500 font-medium">Status</th>
                 <th className="text-right py-3 px-4 text-gray-500 font-medium">Actions</th>
               </tr>
@@ -172,6 +179,14 @@ export default function AdminMarketers() {
                           type="text" value={editForm.whatsapp_number}
                           onChange={(e) => setEditForm({ ...editForm, whatsapp_number: e.target.value })}
                           className="input-field text-sm py-2"
+                        />
+                      </td>
+                      <td className="py-3 px-4 hidden lg:table-cell">
+                        <input
+                          type="text" value={editForm.whatsapp_number_2}
+                          onChange={(e) => setEditForm({ ...editForm, whatsapp_number_2: e.target.value })}
+                          className="input-field text-sm py-2"
+                          placeholder="Optional"
                         />
                       </td>
                       <td className="py-3 px-4">
@@ -207,6 +222,7 @@ export default function AdminMarketers() {
                       <td className="py-3 px-4 hidden sm:table-cell text-gray-500">{m.users?.email}</td>
                       <td className="py-3 px-4 text-gray-500">{m.ref_code}</td>
                       <td className="py-3 px-4 hidden md:table-cell text-gray-500">{m.whatsapp_number}</td>
+                      <td className="py-3 px-4 hidden lg:table-cell text-gray-500">{m.whatsapp_number_2 || '-'}</td>
                       <td className="py-3 px-4">
                         <span className={`inline-block px-2 py-1 text-xs font-medium rounded-full ${
                           m.status === 'active' ? 'bg-green-100 text-green-700' :

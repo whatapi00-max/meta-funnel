@@ -11,6 +11,7 @@ export default function MarketerProfile() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [newNumber, setNewNumber] = useState('');
+  const [newNumber2, setNewNumber2] = useState('');
   const [updating, setUpdating] = useState(false);
   const [updateMsg, setUpdateMsg] = useState('');
 
@@ -22,6 +23,7 @@ export default function MarketerProfile() {
         const data = await marketerApi.getProfile();
         setProfile(data);
         setNewNumber(data.whatsapp_number);
+        setNewNumber2(data.whatsapp_number_2 || '');
       } catch (err) {
         setError(err.message);
       } finally {
@@ -37,7 +39,7 @@ export default function MarketerProfile() {
     setUpdateMsg('');
 
     try {
-      const data = await marketerApi.updateWhatsApp(newNumber);
+      const data = await marketerApi.updateWhatsApp(newNumber, newNumber2);
       setProfile(data.marketer);
       setUpdateMsg('WhatsApp number updated! Status set to pending for admin review.');
       setTimeout(() => setUpdateMsg(''), 5000);
@@ -112,7 +114,7 @@ export default function MarketerProfile() {
 
       {/* Update WhatsApp */}
       <div className="card">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Update WhatsApp Number</h2>
+        <h2 className="text-lg font-semibold text-gray-900 mb-4">Update WhatsApp Numbers</h2>
 
         {updateMsg && (
           <div className={`p-3 rounded-lg text-sm mb-4 ${
@@ -122,23 +124,38 @@ export default function MarketerProfile() {
           </div>
         )}
 
-        <form onSubmit={handleUpdateNumber} className="flex flex-col sm:flex-row gap-3">
-          <input
-            type="text"
-            value={newNumber}
-            onChange={(e) => setNewNumber(e.target.value)}
-            className="input-field sm:max-w-xs"
-            placeholder="919876543210"
-            pattern="^\d{10,15}$"
-            title="10-15 digits including country code"
-            required
-          />
+        <form onSubmit={handleUpdateNumber} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">WhatsApp #1 *</label>
+            <input
+              type="text"
+              value={newNumber}
+              onChange={(e) => setNewNumber(e.target.value)}
+              className="input-field sm:max-w-xs"
+              placeholder="919876543210"
+              pattern="^\d{10,15}$"
+              title="10-15 digits including country code"
+              required
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">WhatsApp #2 (optional)</label>
+            <input
+              type="text"
+              value={newNumber2}
+              onChange={(e) => setNewNumber2(e.target.value)}
+              className="input-field sm:max-w-xs"
+              placeholder="919876543210"
+              pattern="^\d{0}$|^\d{10,15}$"
+              title="10-15 digits including country code, or leave empty"
+            />
+          </div>
           <button type="submit" disabled={updating} className="btn-primary whitespace-nowrap">
-            {updating ? 'Updating...' : 'Update Number'}
+            {updating ? 'Updating...' : 'Update Numbers'}
           </button>
         </form>
         <p className="text-xs text-gray-400 mt-2">
-          After updating, your number will be set to &quot;pending&quot; until admin approves it.
+          After updating, your status will be set to &quot;pending&quot; until admin approves it.
         </p>
       </div>
     </div>

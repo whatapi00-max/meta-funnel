@@ -10,7 +10,7 @@ async function getMarketerByRef(req, res) {
 
   const { data, error } = await supabase
     .from('marketers')
-    .select('name, whatsapp_number, ref_code')
+    .select('name, whatsapp_number, whatsapp_number_2, ref_code')
     .eq('ref_code', ref)
     .eq('status', 'active')
     .single();

@@ -54,10 +54,10 @@ export const authApi = {
 // Marketer API
 export const marketerApi = {
   getProfile: () => request('/api/marketer/profile'),
-  updateWhatsApp: (whatsapp_number) =>
+  updateWhatsApp: (whatsapp_number, whatsapp_number_2) =>
     request('/api/marketer/update-number', {
       method: 'PUT',
-      body: JSON.stringify({ whatsapp_number }),
+      body: JSON.stringify({ whatsapp_number, whatsapp_number_2 }),
     }),
   getStats: () => request('/api/marketer/stats'),
 };
@@ -105,6 +105,20 @@ export const adminApi = {
     const formData = new FormData();
     formData.append('image', file);
     const res = await fetch(`${API_URL}/api/admin/upload-logo`, {
+      method: 'POST',
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+      body: formData,
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Upload failed');
+    return data;
+  },
+  uploadCardImage: async (file) => {
+    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+    const formData = new FormData();
+    formData.append('image', file);
+    const res = await fetch(`${API_URL}/api/admin/upload-card-image`, {
       method: 'POST',
       headers: token ? { Authorization: `Bearer ${token}` } : {},
       body: formData,

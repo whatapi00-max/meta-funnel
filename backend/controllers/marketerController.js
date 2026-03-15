@@ -15,17 +15,26 @@ async function getProfile(req, res) {
   return res.json(data);
 }
 
-// Update WhatsApp number
+// Update WhatsApp number(s)
 async function updateWhatsApp(req, res) {
-  const { whatsapp_number } = req.body;
+  const { whatsapp_number, whatsapp_number_2 } = req.body;
 
   if (!whatsapp_number || !/^\d{10,15}$/.test(whatsapp_number)) {
     return res.status(400).json({ error: 'Invalid WhatsApp number. Use digits only (10-15 digits).' });
   }
 
+  if (whatsapp_number_2 && !/^\d{10,15}$/.test(whatsapp_number_2)) {
+    return res.status(400).json({ error: 'Invalid WhatsApp number 2. Use digits only (10-15 digits).' });
+  }
+
+  const updates = { whatsapp_number, status: 'pending' };
+  if (whatsapp_number_2 !== undefined) {
+    updates.whatsapp_number_2 = whatsapp_number_2 || '';
+  }
+
   const { data, error } = await supabase
     .from('marketers')
-    .update({ whatsapp_number, status: 'pending' })
+    .update(updates)
     .eq('user_id', req.user.id)
     .select()
     .single();

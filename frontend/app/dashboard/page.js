@@ -75,20 +75,31 @@ export default function MarketerDashboard() {
         </div>
       </div>
 
-      {/* WhatsApp Number */}
+      {/* WhatsApp Numbers */}
       <div className="card">
-        <h2 className="text-lg font-semibold text-gray-900 mb-3">WhatsApp Number</h2>
-        <div className="flex items-center gap-3">
-          <div className="bg-gray-50 rounded-lg px-4 py-3 text-sm text-gray-700 font-mono border border-gray-200">
-            +{profile?.whatsapp_number}
+        <h2 className="text-lg font-semibold text-gray-900 mb-3">WhatsApp Numbers</h2>
+        <div className="space-y-2">
+          <div className="flex items-center gap-3">
+            <span className="text-xs text-gray-500 w-8">#1</span>
+            <div className="bg-gray-50 rounded-lg px-4 py-3 text-sm text-gray-700 font-mono border border-gray-200">
+              +{profile?.whatsapp_number}
+            </div>
+            <span className={`inline-block px-2 py-1 text-xs font-medium rounded-full ${
+              profile?.status === 'active' ? 'bg-green-100 text-green-700' :
+              profile?.status === 'pending' ? 'bg-yellow-100 text-yellow-700' :
+              'bg-red-100 text-red-700'
+            }`}>
+              {profile?.status}
+            </span>
           </div>
-          <span className={`inline-block px-2 py-1 text-xs font-medium rounded-full ${
-            profile?.status === 'active' ? 'bg-green-100 text-green-700' :
-            profile?.status === 'pending' ? 'bg-yellow-100 text-yellow-700' :
-            'bg-red-100 text-red-700'
-          }`}>
-            {profile?.status}
-          </span>
+          {profile?.whatsapp_number_2 && (
+            <div className="flex items-center gap-3">
+              <span className="text-xs text-gray-500 w-8">#2</span>
+              <div className="bg-gray-50 rounded-lg px-4 py-3 text-sm text-gray-700 font-mono border border-gray-200">
+                +{profile?.whatsapp_number_2}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

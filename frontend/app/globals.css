@@ -8,6 +8,33 @@
   }
 }
 
+/* ── CTA mega glow ── */
+@keyframes cta-mega-glow {
+  0%, 100% { box-shadow: 0 4px 20px rgba(37,211,102,0.4), 0 0 60px rgba(37,211,102,0.1); }
+  50%      { box-shadow: 0 8px 40px rgba(37,211,102,0.6), 0 0 80px rgba(37,211,102,0.2), 0 0 0 6px rgba(37,211,102,0.1); }
+}
+.cta-mega-glow { animation: cta-mega-glow 2s ease-in-out infinite; }
+
+/* ── CTA shine sweep ── */
+@keyframes cta-shine-sweep {
+  0%   { transform: translateX(-100%) skewX(-15deg); }
+  100% { transform: translateX(200%) skewX(-15deg); }
+}
+.cta-shine {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.15) 50%, transparent 100%);
+  animation: cta-shine-sweep 3s ease-in-out infinite;
+}
+
+/* ── Bounce X arrow ── */
+@keyframes bounce-x {
+  0%, 100% { transform: translateX(0); }
+  50%       { transform: translateX(6px); }
+}
+.bounce-x { animation: bounce-x 1s ease-in-out infinite; }
+
+/* ── Slide up ── */
 @keyframes slide-up {
   from { transform: translateY(100%); opacity: 0; }
   to   { transform: translateY(0);    opacity: 1; }
@@ -16,33 +43,23 @@
   animation: slide-up 0.35s cubic-bezier(0.34, 1.2, 0.64, 1) both;
 }
 
+/* ── WhatsApp glow (kept for other pages) ── */
 @keyframes wa-glow {
   0%, 100% { box-shadow: 0 4px 20px rgba(37,211,102,0.55); }
   50%       { box-shadow: 0 4px 38px rgba(37,211,102,0.95), 0 0 0 8px rgba(37,211,102,0.13); }
 }
 .wa-glow { animation: wa-glow 1.8s ease-in-out infinite; }
 
-@keyframes bounce-x {
-  0%, 100% { transform: translateX(0); }
-  50%       { transform: translateX(4px); }
+/* ── Join Now blink ── */
+@keyframes join-blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.25; }
 }
-.bounce-x { animation: bounce-x 0.8s ease-in-out infinite; }
+.join-blink { animation: join-blink 1s ease-in-out infinite; }
 
-/* hide scrollbar for testimonial strip */
+/* hide scrollbar */
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-
-@keyframes money-fall {
-  0%   { transform: translateY(-60px) rotate(0deg) translateX(0px);   opacity: 1; }
-  25%  { transform: translateY(25vh)  rotate(180deg) translateX(calc(var(--swing, 1) * 12px)); }
-  50%  { transform: translateY(50vh)  rotate(360deg) translateX(0px); }
-  75%  { transform: translateY(75vh)  rotate(540deg) translateX(calc(var(--swing, 1) * -10px)); }
-  90%  { opacity: 1; }
-  100% { transform: translateY(115vh) rotate(720deg) translateX(0px); opacity: 0; }
-}
-.money-rain-item {
-  animation: money-fall linear forwards;
-}
 
 @layer components {
   .btn-primary {

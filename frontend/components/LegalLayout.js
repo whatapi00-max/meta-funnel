@@ -2,15 +2,26 @@
 
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
-import { publicApi } from '../lib/api';
 
 export default function LegalLayout({ title, children }) {
-  const [email, setEmail] = useState('support@mobsforsub.com');
+  const [email, setEmail] = useState('support@billy777.com');
 
   useEffect(() => {
-    publicApi.getContent()
-      .then(c => { if (c?.contact_email) setEmail(c.contact_email); })
-      .catch(() => {});
+    async function loadEmail() {
+      try {
+        const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+        const res = await fetch(`${API_URL}/api/public/content`, {
+          headers: { 'Content-Type': 'application/json' },
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (data?.contact_email) setEmail(data.contact_email);
+        }
+      } catch {
+        // API unavailable — use default email
+      }
+    }
+    loadEmail();
   }, []);
 
   return (

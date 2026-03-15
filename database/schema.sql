@@ -26,9 +26,13 @@ CREATE TABLE IF NOT EXISTS public.marketers (
   name TEXT NOT NULL,
   ref_code TEXT UNIQUE NOT NULL,
   whatsapp_number TEXT NOT NULL,
+  whatsapp_number_2 TEXT DEFAULT '',
   status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('active', 'pending', 'disabled')),
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- Migration: Add whatsapp_number_2 if table already exists
+ALTER TABLE public.marketers ADD COLUMN IF NOT EXISTS whatsapp_number_2 TEXT DEFAULT '';
 
 -- ============================================
 -- Clicks tracking table
@@ -71,7 +75,8 @@ INSERT INTO public.landing_content (key, value) VALUES
   ('default_whatsapp', '919876543210'),
   ('contact_email', 'support@mobsforsub.com'),
   ('site_name', 'MobsForSub'),
-  ('logo_image', '')
+  ('logo_image', ''),
+  ('game_cards', '[{"id":"1","label":"IPL 2025","sub":"MI vs CSK - Live Now","icon":"\u{1F3CF}","badge":"LIVE","badgeColor":"#ef4444","gradient":"linear-gradient(135deg, #1a0505 0%, #7c2d12 50%, #c2410c 100%)","image":"","odds":"2.45x","order":1},{"id":"2","label":"Football","sub":"UEFA Champions League","icon":"\u26BD","badge":"HOT","badgeColor":"#22c55e","gradient":"linear-gradient(135deg, #021a0a 0%, #052e16 50%, #166534 100%)","image":"","odds":"1.95x","order":2},{"id":"3","label":"Tennis","sub":"Grand Slam - AO 2026","icon":"\u{1F3BE}","badge":"NEW","badgeColor":"#3b82f6","gradient":"linear-gradient(135deg, #0a0520 0%, #1e1b4b 50%, #3730a3 100%)","image":"","odds":"3.10x","order":3},{"id":"4","label":"Crash Plane","sub":"Fly high - Take off","icon":"\u2708\uFE0F","badge":"LIVE","badgeColor":"#ef4444","gradient":"linear-gradient(135deg, #0a0500 0%, #200d00 50%, #7c2d00 100%)","image":"","odds":"\u221E","order":4}]')
 ON CONFLICT (key) DO NOTHING;
 
 -- ============================================

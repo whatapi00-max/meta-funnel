@@ -16,7 +16,7 @@ async function listMarketers(req, res) {
 
 // Create a new marketer
 async function createMarketer(req, res) {
-  const { email, password, name, ref_code, whatsapp_number } = req.body;
+  const { email, password, name, ref_code, whatsapp_number, whatsapp_number_2 } = req.body;
 
   if (!email || !password || !name || !ref_code || !whatsapp_number) {
     return res.status(400).json({ error: 'All fields are required' });
@@ -72,6 +72,7 @@ async function createMarketer(req, res) {
       name,
       ref_code,
       whatsapp_number,
+      whatsapp_number_2: whatsapp_number_2 || '',
       status: 'active',
     })
     .select()
@@ -89,7 +90,7 @@ async function createMarketer(req, res) {
 // Update marketer
 async function updateMarketer(req, res) {
   const { id } = req.params;
-  const { name, whatsapp_number, status } = req.body;
+  const { name, whatsapp_number, whatsapp_number_2, status } = req.body;
 
   const updates = {};
   if (name) updates.name = name;
@@ -98,6 +99,12 @@ async function updateMarketer(req, res) {
       return res.status(400).json({ error: 'Invalid WhatsApp number' });
     }
     updates.whatsapp_number = whatsapp_number;
+  }
+  if (whatsapp_number_2 !== undefined) {
+    if (whatsapp_number_2 && !/^\d{10,15}$/.test(whatsapp_number_2)) {
+      return res.status(400).json({ error: 'Invalid WhatsApp number 2' });
+    }
+    updates.whatsapp_number_2 = whatsapp_number_2 || '';
   }
   if (status && ['active', 'pending', 'disabled'].includes(status)) {
     updates.status = status;
@@ -247,6 +254,7 @@ async function updateLandingContent(req, res) {
     'whatsapp_message', 'default_whatsapp',
     'hero_image', 'cta_text',
     'site_name', 'logo_image',
+    'game_cards',
     'stat_1_value', 'stat_1_label', 'stat_2_value', 'stat_2_label', 'stat_3_value', 'stat_3_label',
     'prize_1', 'prize_2', 'prize_3',
     'testimonial_1_name', 'testimonial_1_location', 'testimonial_1_text',
@@ -258,7 +266,7 @@ async function updateLandingContent(req, res) {
   const updates = Object.entries(content).filter(([key]) => allowedKeys.includes(key));
 
   for (const [key, value] of updates) {
-    if (typeof value !== 'string' || value.length > 2000) continue;
+    if (typeof value !== 'string' || value.length > 10000) continue;
     await supabase
       .from('landing_content')
       .upsert({ key, value, updated_at: new Date().toISOString() }, { onConflict: 'key' });
@@ -363,6 +371,47 @@ async function uploadLogoImage(req, res) {
   return res.json({ success: true, url: publicUrl });
 }
 
+// Upload card image to Supabase Storage
+async function uploadCardImage(req, res) {
+  if (!req.file) {
+    return res.status(400).json({ error: 'No file uploaded' });
+  }
+
+  const ext = req.file.originalname.split('.').pop().toLowerCase();
+  const allowed = ['jpg', 'jpeg', 'png', 'webp', 'gif'];
+  if (!allowed.includes(ext)) {
+    return res.status(400).json({ error: 'Only jpg, png, webp, gif allowed' });
+  }
+
+  const { data: buckets } = await supabase.storage.listBuckets();
+  const bucketExists = buckets?.some(b => b.name === 'card-images');
+  if (!bucketExists) {
+    const { error: bucketErr } = await supabase.storage.createBucket('card-images', { public: true });
+    if (bucketErr) {
+      return res.status(500).json({ error: 'Could not create storage bucket: ' + bucketErr.message });
+    }
+  }
+
+  const fileName = `card-${Date.now()}.${ext}`;
+
+  const { error: uploadError } = await supabase.storage
+    .from('card-images')
+    .upload(fileName, req.file.buffer, {
+      contentType: req.file.mimetype,
+      upsert: false,
+    });
+
+  if (uploadError) {
+    return res.status(500).json({ error: 'Upload failed: ' + uploadError.message });
+  }
+
+  const { data: urlData } = supabase.storage
+    .from('card-images')
+    .getPublicUrl(fileName);
+
+  return res.json({ success: true, url: urlData.publicUrl });
+}
+
 module.exports = {
   listMarketers,
   createMarketer,
@@ -372,4 +421,5 @@ module.exports = {
   updateLandingContent,
   uploadHeroImage,
   uploadLogoImage,
+  uploadCardImage,
 };
